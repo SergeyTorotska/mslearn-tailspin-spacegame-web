@@ -1,3 +1,10 @@
+### YamlMime:Yaml
+ms.openlocfilehash: a933be77d19a2017cd5d5a40835bb52a77ed0968
+ms.sourcegitcommit: 82f364d63269c277208cf43051f26cc26a25f1a4
+ms.translationtype: HT
+ms.contentlocale: ru-RU
+ms.lasthandoff: 06/09/2021
+ms.locfileid: "111862566"
 trigger:
 - '*'
 variables:
@@ -41,7 +48,7 @@ stages:
       displayName: Build the project - $(buildConfiguration)
       inputs:
         command: build
-        arguments: -restore --configuration $(buildConfiguration)
+        arguments: --no-restore --configuration $(buildConfiguration)
         projects: '**/*.csproj'
     - task: DotNetCoreCLI@2
       displayName: Publish the project - $(buildConfiguration)
@@ -54,9 +61,15 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)
       artifact: drop
 - stage: Dev
-  displayName: Deploy t
+  displayName: Deploy to the dev environment
   dependsOn: Build
+  condition: >
+    and
 
+    (
+      succeeded(),
+      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+    )
   jobs:
   - deployment: Deploy
     pool:
@@ -76,3 +89,4 @@ stages:
               azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
               appName: $(WebAppName)
               package: $(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip
+
