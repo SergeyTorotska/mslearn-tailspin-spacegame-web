@@ -1,12 +1,6 @@
-### YamlMime:Yaml
-ms.openlocfilehash: a933be77d19a2017cd5d5a40835bb52a77ed0968
-ms.sourcegitcommit: 82f364d63269c277208cf43051f26cc26a25f1a4
-ms.translationtype: HT
-ms.contentlocale: ru-RU
-ms.lasthandoff: 06/09/2021
-ms.locfileid: "111862566"
 trigger:
 - '*'
+
 variables:
   buildConfiguration: Release
   releaseBranchName: master
@@ -20,9 +14,11 @@ stages:
       vmImage: ubuntu-18.04
       demands:
       - npm
+
     variables:
       wwwrootDir: Tailspin.SpaceGame.Web/wwwroot
       dotnetSdkVersion: 3.1.300
+   
     steps:
     - task: UseDotNet@2
       displayName: Use .NET SDK $(dotnetSdkVersion)
@@ -34,6 +30,7 @@ stages:
         verbose: false
     - script: ./node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)
       displayName: Compile Sass assets
+   
     - task: gulp@1
       displayName: Run gulp tasks
     - script: echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt
@@ -60,8 +57,9 @@ stages:
         zipAfterPublish: true
     - publish: $(Build.ArtifactStagingDirectory)
       artifact: drop
-- stage: Dev
-  displayName: Deploy to the dev environment
+
+- stage: deploy
+  displayName: Deploy to the app service
   dependsOn: Build
   condition: >
     and
