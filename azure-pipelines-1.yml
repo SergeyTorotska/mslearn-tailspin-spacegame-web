@@ -1,20 +1,86 @@
 trigger:
-- main
+  branches:
+    include:
+    - master
+
 
 variables:
+  buildConfiguration: 'Release'
 
-  # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: '09bdde2f-d919-4dfe-a292-a140c5a96b43'
-
-  # Web app name
-  webAppName: 'PipelineApps'
-
-  # Environment name
-  environmentName: 'PipelineApps'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+pool:
+  name: Azure Pipelines
+  vmImage: 'ubuntu-latest'
+ 
 
 stages:
-- template: templates/build.yml
-- template: templates/deploy.yml
+  - stage: 'Build'
+    displayName: 'Build the web app'
+    jobs:
+    - job: 'Build'
+      displayName: 'Build-Job'
+      pool:
+        name: Azure Pipelines
+        vmImage: 'ubuntu-latest'
+        
+
+      variables:
+        wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
+        dotnetSdkVersion: '3.1.300'
+
+      steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET CORE SDK $(dotnetSdkVersion)'
+          inputs:
+           version: '$(dotnetSdkVersion)'
+             
+        - task: Npm@1
+          displayName: 'Use Npm install'
+          inputs:
+            command: install
+            verbose: false    
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)' 
+          inputs:
+            command: build
+            arguments: '-restore --configuration $(buildConfiguration)'
+            projects: '**/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: publish
+            projects: '**/*.csproj'
+            publishWebProjects: false
+            arguments: '--no-build  --configuration $(buildConfiguration) --output $(Build.ArifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - publish: '$(build.ArtifactStagigDirectory)'
+          artifact: drop
+
+  - stage: 'Deploy'
+    displayName: 'Deploy the web app'
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: dev
+        variables: 
+        - group: Release
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - download: current
+                artifact: drop
+
+              - task: AzureWebApp@1
+                displayName: 'Azure app service deploy: website'
+                inputs:
+                  azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
+                  appName: '$(WebAppName)'
+                  appType: 'webAppLinux'
+                  package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'  
+
+
