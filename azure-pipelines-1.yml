@@ -55,9 +55,6 @@ stages:
             arguments: '--no-build  --configuration $(buildConfiguration) --output $(Build.ArifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
 
-        - publish: '$(build.ArtifactStagigDirectory)'
-          artifact: drop
-
   - stage: 'Deploy'
     displayName: 'Deploy the web app'
     dependsOn: Build
