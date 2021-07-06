@@ -4,11 +4,11 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  webAppName: WebAppxs
+  webAppName: webSiteyn34m33a3duyg
 
 pool:
   name: Azure Pipelines
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
  
 
 stages:
@@ -19,7 +19,7 @@ stages:
       displayName: 'Build-Job'
       pool:
         name: Azure Pipelines
-        vmImage: 'windows-latest'
+        vmImage: 'ubuntu-latest'
         
 
       variables:
@@ -36,14 +36,14 @@ stages:
           displayName: 'Build the project - $(buildConfiguration)' 
           inputs:
             command: build
-            arguments: '--configuration $(buildConfiguration)'
+            arguments: '-restore --configuration $(buildConfiguration)'
             projects: '**/*.csproj'
 
         - task: DotNetCoreCLI@2
           inputs:
            command: publish
-           publishWebProjects: true
-           arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+           publishWebProjects: false
+           arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
            zipAfterPublish: True
 
         - task: PublishPipelineArtifact@1
@@ -62,5 +62,5 @@ stages:
                 inputs:
                   azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
                   appName: '$(WebAppName)'
-                  appType: 'webApp'
+                  appType: 'webAppLinux'
                   package: '$(Build.ArtifactStagingDirectory)'  
