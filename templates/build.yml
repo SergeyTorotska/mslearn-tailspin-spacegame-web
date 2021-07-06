@@ -1,21 +1,39 @@
 stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
+- stage: 'Build'
+    displayName: 'Build the web app'
+    jobs:
+    - job: 'Build'
+      displayName: 'Build-Job'
+      pool:
+        name: Azure Pipelines
+        vmImage: 'ubuntu-latest'
+        
 
-    steps:
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
+      variables:
+        wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
+        dotnetSdkVersion: '5.0.x'
 
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      artifact: drop
+      steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET CORE SDK $(dotnetSdkVersion)'
+          inputs:
+           version: '$(dotnetSdkVersion)'
+             
+        - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)' 
+          inputs:
+            command: build
+            arguments: '-restore --configuration $(buildConfiguration)'
+            projects: '**/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+           command: publish
+           publishWebProjects: false
+           arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+           zipAfterPublish: True
+
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Build.ArtifactStagingDirectory)' 
+            artifact: drop
