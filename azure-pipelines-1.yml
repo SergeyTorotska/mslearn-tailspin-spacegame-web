@@ -43,13 +43,13 @@ stages:
           inputs:
            command: publish
            publishWebProjects: false
-           arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+           arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
            zipAfterPublish: True
 
         - task: PublishPipelineArtifact@1
           inputs:
             targetPath: '$(Build.ArtifactStagingDirectory)' 
-            artifactName: 'myWebsiteName'
+            artifact: drop
 
   - stage: 'Deploy'
     displayName: 'Deploy the web app'
@@ -63,4 +63,4 @@ stages:
                   azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
                   appName: '$(WebAppName)'
                   appType: 'webAppLinux'
-                  package: '$(BuildConfiguration)/**/*.zip'  
+                  package: '$(Pipeline.Workspace)/drop/$(BuildConfiguration)/*.zip'  
