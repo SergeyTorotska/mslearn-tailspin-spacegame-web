@@ -46,37 +46,23 @@ stages:
             projects: '**/*.csproj'
 
         - task: DotNetCoreCLI@2
-          displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
-            command: publish
-            projects: '**/*.csproj'
-            publishWebProjects: true
-            arguments: '--no-build  --configuration $(buildConfiguration) --output $(Build.ArifactStagingDirectory)/$(buildConfiguration)'
-            zipAfterPublish: true
+           command: publish
+           publishWebProjects: True
+           arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+           zipAfterPublish: True
 
-        - task: PublishBuildArtifacts@1
+        - task: PublishPipelineArtifact@1
           inputs:
-            artifactName: 'app001' 
             targetPath: '$(Build.ArtifactStagingDirectory)' 
-           
+            artifactName: 'myWebsiteName'
 
   - stage: 'Deploy'
     displayName: 'Deploy the web app'
     dependsOn: Build
     jobs:
-      - deployment: Deploy
-        pool:
-          vmImage: 'ubuntu-latest'
-        environment: dev
-        variables: 
-        - group: Release
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-              - download: current
-                artifact: app001
-
+      - job: deployJob
+        steps:
               - task: AzureWebApp@1
                 displayName: 'Azure app service deploy'
                 inputs:
@@ -84,5 +70,3 @@ stages:
                   appName: '$(WebAppName)'
                   appType: 'webAppLinux'
                   package: '$(Build.ArtifactStagingDirectory)/*.zip'  
-
-
