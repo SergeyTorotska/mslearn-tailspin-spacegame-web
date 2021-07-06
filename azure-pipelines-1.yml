@@ -51,14 +51,14 @@ stages:
           inputs:
             command: publish
             projects: '**/*.csproj'
-            publishWebProjects: false
+            publishWebProjects: true
             arguments: '--no-build  --configuration $(buildConfiguration) --output $(Build.ArifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
 
         - task: PublishBuildArtifacts@1
           inputs:
             pathToPublish: '$(Build.ArtifactStagingDirectory)' 
-            artifactName: 'drop' 
+            artifactName: 'app001' 
 
   - stage: 'Deploy'
     displayName: 'Deploy the web app'
