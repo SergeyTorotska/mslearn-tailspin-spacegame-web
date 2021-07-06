@@ -75,7 +75,7 @@ stages:
             deploy:
               steps:
               - download: current
-                artifact: drop
+                artifact: app001
 
               - task: AzureWebApp@1
                 displayName: 'Azure app service deploy: website'
