@@ -56,7 +56,7 @@ stages:
 
         - task: PublishBuildArtifacts@1
           inputs:
-            pathToPublish: '$(Build.ArtifactStagingDirectory)' 
+            pathToPublish: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip' 
             artifactName: 'app001' 
 
   - stage: 'Deploy'
