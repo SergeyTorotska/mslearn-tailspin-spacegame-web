@@ -1,11 +1,10 @@
 trigger:
-  branches:
-    include:
-    - master
+  - master
 
 
 variables:
   buildConfiguration: 'Release'
+  webAppName: PipelineApps
 
 pool:
   name: Azure Pipelines
