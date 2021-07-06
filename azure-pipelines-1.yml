@@ -53,36 +53,20 @@ stages:
             publishWebProjects: true
             arguments: '--no-build  --configuration $(buildConfiguration) --output $(Build.ArifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
-
-        - task: PublishBuildArtifacts@1
-          inputs:
-            artifactName: 'app001' 
-            targetPath: '$(Build.ArtifactStagingDirectory)' 
            
 
   - stage: 'Deploy'
     displayName: 'Deploy the web app'
     dependsOn: Build
     jobs:
-      - deployment: Deploy
-        pool:
-          vmImage: 'ubuntu-latest'
-        environment: dev
-        variables: 
-        - group: Release
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-              - download: current
-                artifact: app001
-
-              - task: AzureWebApp@1
-                displayName: 'Azure app service deploy: website'
-                inputs:
-                  azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
-                  appName: '$(WebAppName)'
-                  appType: 'webAppLinux'
-                  package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'  
+      - job: deployJob
+        steps:
+        - task: AzureWebApp@1
+          displayName: 'Azure app service deploy'
+          inputs:
+            azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
+            appName: '$(WebAppName)'
+            appType: 'webAppLinux'
+            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'  
 
 
