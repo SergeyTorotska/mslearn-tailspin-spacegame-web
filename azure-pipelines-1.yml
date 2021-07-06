@@ -8,7 +8,7 @@ variables:
 
 pool:
   name: Azure Pipelines
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
  
 
 stages:
@@ -19,7 +19,7 @@ stages:
       displayName: 'Build-Job'
       pool:
         name: Azure Pipelines
-        vmImage: 'ubuntu-latest'
+        vmImage: 'windows-latest'
         
 
       variables:
@@ -62,5 +62,5 @@ stages:
                 inputs:
                   azureSubscription: 'Azure subscription 1 (f016713d-47fd-4917-a2c7-c2805377c59c)'
                   appName: '$(WebAppName)'
-                  appType: 'webAppLinux'
+                  appType: 'webApp'
                   package: '$(Build.ArtifactStagingDirectory)'  
