@@ -32,12 +32,6 @@ stages:
           inputs:
            version: '$(dotnetSdkVersion)'
              
-        - task: Npm@1
-          displayName: 'Use Npm install'
-          inputs:
-            command: install
-            verbose: false    
-
         - task: DotNetCoreCLI@2
           displayName: 'Build the project - $(buildConfiguration)' 
           inputs:
