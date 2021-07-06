@@ -36,14 +36,14 @@ stages:
           displayName: 'Build the project - $(buildConfiguration)' 
           inputs:
             command: build
-            arguments: '-restore --configuration $(buildConfiguration)'
+            arguments: '--configuration $(buildConfiguration)'
             projects: '**/*.csproj'
 
         - task: DotNetCoreCLI@2
           inputs:
            command: publish
            publishWebProjects: true
-           arguments: '-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+           arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
            zipAfterPublish: True
 
         - task: PublishPipelineArtifact@1
